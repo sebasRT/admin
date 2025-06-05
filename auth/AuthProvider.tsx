@@ -8,10 +8,13 @@ import {
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import { check, login, logout } from "./actions";
+import { generateOtp } from "./authApi";
 
 type AuthState = {
+  hasOtp: boolean;
   isLoggedIn: boolean;
   isReady: boolean;
+  sendOtp: (email: string) => Promise<void>;
   check: () => void;
   logIn: (token: string) => void;
   logOut: () => void;
@@ -26,6 +29,18 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
     createStore<AuthState>((set) => ({
       isLoggedIn: false,
       isReady: false,
+      hasOtp: false,
+      sendOtp: async (email: string) => {
+        try {
+          const response = await generateOtp(email);
+          console.log(response);
+          set(() => ({ hasOtp: true }));
+        }
+        catch (error) {
+          console.error("Error fetching OTP:", error);
+        }
+      },
+
       check: () =>
         set(() => {
           const isLoggedIn = check(); // Replace with actual logic to check login status
