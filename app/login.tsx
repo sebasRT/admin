@@ -5,6 +5,7 @@ import {
   Animated,
   Button,
   Dimensions,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -18,7 +19,7 @@ const Login = () => {
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
-          source={require("@/assets/images/partial-react-logo.png")}
+          source={require("@/assets/images/miDomi.png")}
           style={styles.reactLogo}
         />
       }
@@ -60,10 +61,13 @@ const TwoStepFormAnimated = () => {
       >
         {/* Step 1 */}
         <View style={styles.step}>
+          <Text style={styles.title}>¡Bienvenido a MiDomi!</Text>
           <Text style={styles.label}>Teléfono</Text>
           <Text>Teléfono ingresado al registrarte</Text>
           <TextInput style={styles.input} />
-          <Button title="Next" onPress={handleNext} />
+          <Pressable style={styles.button} onPress={handleNext}>
+            <Text style={{ color: "white" }}>Siguiente</Text>
+          </Pressable>
         </View>
 
         {/* Step 2 */}
@@ -95,6 +99,13 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     padding: 20,
   },
+  title:{
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#0849EE",
+  },
   label: {
     fontSize: 16,
     marginBottom: 6,
@@ -107,12 +118,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
+  button:{
+    backgroundColor: "#0849EE",
+    padding: 20,
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+  }
 });
 
 export default Login;
