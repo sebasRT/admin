@@ -1,10 +1,10 @@
 import { useAuth } from "@/auth/AuthProvider";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Image } from "expo-image";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
-  Button,
   Dimensions,
   Pressable,
   StyleSheet,
@@ -12,9 +12,10 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { OtpInput } from "react-native-otp-entry";
 
 const Login = () => {
-  
+
 
   return (
     <ParallaxScrollView
@@ -36,20 +37,27 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 const TwoStepFormAnimated = () => {
   const animation = useRef(new Animated.Value(0)).current; // 0 for step 1, -SCREEN_WIDTH for step 2
   const [email, setEmail] = useState("");
-  const sendOtp  = useAuth((state) => state.sendOtp);
+  const [otp, setOtp] = useState("");
+  const sendOtp = useAuth((state) => state.sendOtp);
   const hasOtp = useAuth((state) => state.hasOtp);
+  const verifyOtp = useAuth((state) => state.verifyOtp);
+  const isLoading = useAuth((state) => state.isLoading);
   console.log("hasOtp", hasOtp);
-  
-  const handleNext = () => {
-    if(hasOtp){
-      Animated.timing(animation, {
-        toValue: -SCREEN_WIDTH,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
 
+
+  const handleNext = () => {
+    Animated.timing(animation, {
+      toValue: -SCREEN_WIDTH,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
   };
+
+  useEffect(() => {
+    if (hasOtp) {
+      handleNext();
+    }
+  })
 
   const handleBack = () => {
     Animated.timing(animation, {
@@ -58,7 +66,7 @@ const TwoStepFormAnimated = () => {
       useNativeDriver: true,
     }).start();
   };
-  
+
   const handleSubmit = async () => {
     try {
       const response = await sendOtp(email);
@@ -71,6 +79,18 @@ const TwoStepFormAnimated = () => {
 
   };
 
+  const handleLogin = async () => {
+    try {
+      console.log(email);
+      const response = await verifyOtp(email, otp);
+      console.log("Login response:", response);
+    }
+    catch (error) {
+      console.error("Login failed:", error);
+    }
+
+  }
+
   return (
     <View style={styles.wrapper}>
       <Animated.View
@@ -80,21 +100,39 @@ const TwoStepFormAnimated = () => {
         <View style={styles.step}>
           <Text style={styles.title}>¡Bienvenido a MiDomi!</Text>
           <Text style={styles.label}>Correo</Text>
-          <TextInput style={styles.input} placeholder="Ingrese el correo registrado" onChangeText={setEmail} />
-          <Pressable style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Siguiente</Text>
+          <TextInput editable={!isLoading} style={styles.input} placeholder="Ingrese el correo registrado" onChangeText={setEmail} />
+          <Pressable style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+            <Text style={styles.buttonText}>
+
+              {isLoading ? "Enviando..." : "Siguiente"}
+            </Text>
           </Pressable>
+          {isLoading && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
         </View>
 
         {/* Step 2 */}
         <View style={styles.step}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
+          <Text style={styles.title}>Verificación de correo</Text>
+          <Text style={[styles.label, { marginBottom: 20 }]}>Ingresa el código de inicio de sesión que ha sido enviado a tú correo</Text>
+          <OtpInput
+            numberOfDigits={6}
+            onTextChange={setOtp}
+            focusColor={"#0067F6"}
+            theme={{
+              pinCodeContainerStyle: styles.pinStyle,
+              containerStyle: styles.otpInputContainer,
+            }}
+
           />
-          <Button title="Back" onPress={handleBack} />
-          <Button title="Submit" onPress={handleSubmit} />
+          <Pressable style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Iniciar Sesión</Text>
+          </Pressable>
+          {isLoading && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
+
+          {/* <Pressable onPress={handleBack}>
+            <Text style={{ textAlign: "center", color: "#0067F6", marginTop: 20 }}>Volver</Text>
+          </Pressable> */}
+
         </View>
       </Animated.View>
     </View>
@@ -115,7 +153,7 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     paddingInline: 30,
   },
-  title:{
+  title: {
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 40,
@@ -137,7 +175,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  button:{
+  button: {
     backgroundColor: "#0067F6",
     padding: 8,
     borderRadius: 5,
@@ -148,6 +186,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
+  },
+  pinStyle: {
+    borderWidth: 1.5,
+    borderColor: "#ccc",
+    padding: 10,
+
+  },
+  otpInputContainer: {
+    paddingInline: 20,
+    marginBottom: 20,
   },
 
 });

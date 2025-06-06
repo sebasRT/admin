@@ -8,12 +8,14 @@ import {
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import { check, login, logout } from "./actions";
-import { generateOtp } from "./authApi";
+import { generateOtp, verifyOtp } from "./authApi";
 
 type AuthState = {
   hasOtp: boolean;
   isLoggedIn: boolean;
   isReady: boolean;
+  isLoading: boolean;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
   sendOtp: (email: string) => Promise<void>;
   check: () => void;
   logIn: (token: string) => void;
@@ -30,14 +32,30 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       isLoggedIn: false,
       isReady: false,
       hasOtp: false,
+      isLoading: false,
       sendOtp: async (email: string) => {
+        set(() => ({ isLoading: true }));
         try {
           const response = await generateOtp(email);
-          console.log(response);
           set(() => ({ hasOtp: true }));
+          return response.data;
         }
         catch (error) {
           console.error("Error fetching OTP:", error);
+        }
+      },
+      verifyOtp: async (email: string, otp: string) => {
+        set({ isLoading: true });
+        try {
+          const response = await verifyOtp(email, otp); 
+          const token = response.data.token;
+          login(token); 
+          set({ isLoggedIn: true, isReady: true });
+          router.replace("/"); 
+        } catch (error) {
+          console.error("OTP verification failed:", error);
+        } finally {
+        set({ isLoading: false });
         }
       },
 
