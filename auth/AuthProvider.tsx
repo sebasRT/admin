@@ -37,7 +37,8 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         set(() => ({ isLoading: true }));
         try {
           const response = await generateOtp(email);
-          set(() => ({ hasOtp: true }));
+          set(() => ({ hasOtp: true, isLoading: false }));
+          
           return response.data;
         }
         catch (error) {
@@ -51,7 +52,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           const token = response.data.token;
           login(token); 
           set({ isLoggedIn: true, isReady: true });
-          router.replace("/"); 
+          router.replace("/(protected)/(tabs)");
         } catch (error) {
           console.error("OTP verification failed:", error);
         } finally {
@@ -67,7 +68,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       logIn: (token: string) =>
         set(() => {
           login(token);
-          router.replace("/");
+          router.replace("/(protected)/(tabs)");
           return { isLoggedIn: true, isReady: true };
         }),
       logOut: () =>
@@ -76,6 +77,8 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           router.replace("/login");
           return { isLoggedIn: false };
         }),
+      
+        
     }))
   );
 

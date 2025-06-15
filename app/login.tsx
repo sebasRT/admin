@@ -42,6 +42,7 @@ const TwoStepFormAnimated = () => {
   const hasOtp = useAuth((state) => state.hasOtp);
   const verifyOtp = useAuth((state) => state.verifyOtp);
   const isLoading = useAuth((state) => state.isLoading);
+  
   console.log("hasOtp", hasOtp);
 
 
@@ -51,6 +52,9 @@ const TwoStepFormAnimated = () => {
       duration: 300,
       useNativeDriver: true,
     }).start();
+    
+    
+    
   };
 
   useEffect(() => {
