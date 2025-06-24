@@ -42,7 +42,9 @@ const TwoStepFormAnimated = () => {
   const hasOtp = useAuth((state) => state.hasOtp);
   const verifyOtp = useAuth((state) => state.verifyOtp);
   const isLoading = useAuth((state) => state.isLoading);
-  
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
   console.log("hasOtp", hasOtp);
 
 
@@ -52,16 +54,16 @@ const TwoStepFormAnimated = () => {
       duration: 300,
       useNativeDriver: true,
     }).start();
-    
-    
-    
+
+
+
   };
 
   useEffect(() => {
-    if (hasOtp) {
+    if (hasOtp && !isSendingOtp) {
       handleNext();
     }
-  })
+  },[hasOtp, isSendingOtp]);
 
   const handleBack = () => {
     Animated.timing(animation, {
@@ -72,6 +74,7 @@ const TwoStepFormAnimated = () => {
   };
 
   const handleSubmit = async () => {
+    setIsSendingOtp(true);
     try {
       const response = await sendOtp(email);
       console.log(response);
@@ -80,20 +83,23 @@ const TwoStepFormAnimated = () => {
     catch (error) {
       console.error("Error fetching OTP:", error);
     }
+    finally {
+      setIsSendingOtp(false);
+    }
 
   };
 
   const handleLogin = async () => {
+    setIsVerifyingOtp(true);
     try {
-      console.log(email);
       const response = await verifyOtp(email, otp);
       console.log("Login response:", response);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Login failed:", error);
+    } finally {
+      setIsVerifyingOtp(false);
     }
-
-  }
+  };
 
   return (
     <View style={styles.wrapper}>
@@ -104,14 +110,14 @@ const TwoStepFormAnimated = () => {
         <View style={styles.step}>
           <Text style={styles.title}>¡Bienvenido a MiDomi!</Text>
           <Text style={styles.label}>Correo</Text>
-          <TextInput editable={!isLoading} style={styles.input} placeholder="Ingrese el correo registrado" onChangeText={setEmail} />
+          <TextInput editable={!isSendingOtp} style={styles.input} placeholder="Ingrese el correo registrado" onChangeText={setEmail} />
           <Pressable style={styles.button} onPress={handleSubmit} disabled={isLoading}>
             <Text style={styles.buttonText}>
 
-              {isLoading ? "Enviando..." : "Siguiente"}
+              {isSendingOtp ? "Enviando..." : "Siguiente"}
             </Text>
           </Pressable>
-          {isLoading && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
+          {isSendingOtp && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
         </View>
 
         {/* Step 2 */}
@@ -131,12 +137,8 @@ const TwoStepFormAnimated = () => {
           <Pressable style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Iniciar Sesión</Text>
           </Pressable>
-          {isLoading && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
-
-          {/* <Pressable onPress={handleBack}>
-            <Text style={{ textAlign: "center", color: "#0067F6", marginTop: 20 }}>Volver</Text>
-          </Pressable> */}
-
+          {isVerifyingOtp && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
+          
         </View>
       </Animated.View>
     </View>
