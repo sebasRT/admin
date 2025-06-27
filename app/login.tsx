@@ -40,8 +40,9 @@ const TwoStepFormAnimated = () => {
   const [otp, setOtp] = useState("");
   const sendOtp = useAuth((state) => state.sendOtp);
   const hasOtp = useAuth((state) => state.hasOtp);
-  const verifyOtp = useAuth((state) => state.verifyOtp);
+  const verifyOtp = useAuth((state) => state.logIn);
   const isLoading = useAuth((state) => state.isLoading);
+  const user = useAuth((state) => state.user);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
@@ -54,9 +55,6 @@ const TwoStepFormAnimated = () => {
       duration: 300,
       useNativeDriver: true,
     }).start();
-
-
-
   };
 
   useEffect(() => {
@@ -94,6 +92,9 @@ const TwoStepFormAnimated = () => {
     try {
       const response = await verifyOtp(email, otp);
       console.log("Login response:", response);
+      console.log("User data:", user);
+      console.log("User data:", user?.role);
+
     } catch (error) {
       console.error("Login failed:", error);
     } finally {

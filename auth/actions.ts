@@ -1,23 +1,13 @@
-import * as SecuredStore from "expo-secure-store";
+import * as SecureStore from "expo-secure-store";
 
-function check() {
-  const loggedIn = SecuredStore.getItem("loggedIn");
-  if (loggedIn === "true") {
-    return true;
-  } else {
-    return false;
-  }
+export async function check(): Promise<string | null> {
+  return await SecureStore.getItemAsync("token"); // Retorna el token o null
 }
 
-function login(token: string) {
-  SecuredStore.setItem("loggedIn", "true");
-  SecuredStore.setItem("token", token);
+export async function login(token: string): Promise<void> {
+  await SecureStore.setItemAsync("token", token);
 }
 
-function logout() {
-  SecuredStore.setItem("loggedIn", "false");
-  SecuredStore.deleteItemAsync("loggedIn");
+export async function logout(): Promise<void> {
+  await SecureStore.deleteItemAsync("token");
 }
-
-export { check, login, logout };
-

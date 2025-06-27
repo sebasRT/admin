@@ -1,4 +1,6 @@
+import { api } from "@/app/api/delivererApi";
 import { useRouter } from "expo-router";
+import { jwtDecode } from "jwt-decode";
 import {
   createContext,
   PropsWithChildren,
@@ -10,15 +12,23 @@ import { createStore, StoreApi, useStore } from "zustand";
 import { check, login, logout } from "./actions";
 import { generateOtp, verifyOtp } from "./authApi";
 
+type DecodedToken = {
+  role: string;
+  db_name: string;
+  iat: number;
+  exp: number;
+}
+
 type AuthState = {
+  token: string | null;
+  user: DecodedToken | null;
   hasOtp: boolean;
   isLoggedIn: boolean;
   isReady: boolean;
   isLoading: boolean;
-  verifyOtp: (email: string, otp: string) => Promise<void>;
+  logIn: (email: string, otp: string) => Promise<void>;
   sendOtp: (email: string) => Promise<void>;
   check: () => void;
-  logIn: (token: string) => void;
   logOut: () => void;
 };
 
@@ -29,61 +39,81 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const [store] = useState(
     createStore<AuthState>((set) => ({
+      token: null,
       isLoggedIn: false,
       isReady: false,
       hasOtp: false,
       isLoading: false,
+      user: null,
       sendOtp: async (email: string) => {
         set(() => ({ isLoading: true }));
         try {
           const response = await generateOtp(email);
           set(() => ({ hasOtp: true, isLoading: false }));
-          
+
           return response.data;
         }
         catch (error) {
           console.error("Error fetching OTP:", error);
         }
       },
-      verifyOtp: async (email: string, otp: string) => {
+      logIn: async (email: string, otp: string) => {
         set({ isLoading: true });
         try {
-          const response = await verifyOtp(email, otp); 
+          const response = await verifyOtp(email, otp);
           const token = response.data.token;
-          login(token); 
-          set({ isLoggedIn: true, isReady: true });
+          const user = jwtDecode<DecodedToken>(token);
+          await login(token);
+          set({ token, user, isLoggedIn: true, isReady: true });
           router.replace("/(protected)/(tabs)");
         } catch (error) {
           console.error("OTP verification failed:", error);
         } finally {
-        set({ isLoading: false });
+          set({ isLoading: false });
         }
       },
 
-      check: () =>
-        set(() => {
-          const isLoggedIn = check(); // Replace with actual logic to check login status
-          return { isLoggedIn, isReady: true };
-        }),
-      logIn: (token: string) =>
-        set(() => {
-          login(token);
-          router.replace("/(protected)/(tabs)");
-          return { isLoggedIn: true, isReady: true };
-        }),
-      logOut: () =>
-        set(() => {
-          logout();
-          router.replace("/login");
-          return { isLoggedIn: false };
-        }),
-      
-        
+      check: async () => {
+        const token = await check(); // Obtiene el token
+        const user = token ? jwtDecode<DecodedToken>(token) : null;
+        const isLoggedIn = !!token;
+        set({ token, user, isLoggedIn, isReady: true });
+      },
+
+      logOut: async () => {
+        await logout(); // Elimina el token
+        set({ token: null, isLoggedIn: false });
+        router.replace("/login");
+      },
+
+
     }))
   );
 
   useEffect(() => {
     store.getState().check();
+  }, [store]);
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe((state) => {
+      const token = state.token;
+
+      // Registrar interceptor y guardar su ID
+      const interceptorId = api.interceptors.request.use((config) => {
+        config.headers = config.headers || {};
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      });
+
+      // Función de limpieza para quitar el interceptor
+      return () => {
+        api.interceptors.request.eject(interceptorId);
+      };
+    });
+
+    return unsubscribe;
   }, [store]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
