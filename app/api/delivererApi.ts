@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { useDelivererStore } from '@/store/delivererStore';
+import { Deliverer } from '@/store/delivererStore';
+
 
 const API_BASE_URL = "https://nestjs-multitenant-backend-ccrf.onrender.com/"
 
@@ -18,3 +21,14 @@ export const getDeliverers = async () => {
         throw error;
     }
 }
+
+export const createDeliverer = async (deliverer: Deliverer) => {
+    try {
+        const response = await api.post('/admin', deliverer);
+        return response.data;
+    } catch (error) {
+        console.error("Error creating deliverer:", error);
+        throw error;
+    }
+}
+

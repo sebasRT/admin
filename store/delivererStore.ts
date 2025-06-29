@@ -1,10 +1,10 @@
-import {create} from "zustand";
-import {getDeliverers} from "@/app/api/delivererApi";
+import { createDeliverer, getDeliverers } from "@/app/api/delivererApi";
+import { create } from "zustand";
 
 export type Deliverer = {
     email: string;
     name: string;
-    phone: string;
+    phone: number;
     db: string; 
 }
 
@@ -34,10 +34,20 @@ export const useDelivererStore = create<DelivererState>((set,get)=>({
             set({isLoading: false, error: "Failed to fetch deliverers"});
         }
     },
-    addDeliverer: (deliverer) => {
-        set((state) => ({
-            deliverers: [...state.deliverers, deliverer],
-        }));
+    
+    addDeliverer: async (deliverer) => {
+        set({isLoading: true, error: null});
+        try {
+            const newDeliverer = await createDeliverer(deliverer);
+            set((state) => ({
+                deliverers: [...state.deliverers, newDeliverer],
+                isLoading: false,
+            }));
+            console.log("Deliverer created successfully:", newDeliverer);
+        } catch (error) {
+            console.error("Error creating deliverer:", error);
+            set({isLoading: false, error: "Failed to create deliverer"});
+        }
     },
     updateDeliverer: (name, updatedDeliverer) => {
         set((state) => ({

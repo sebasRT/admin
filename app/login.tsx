@@ -61,7 +61,7 @@ const TwoStepFormAnimated = () => {
     if (hasOtp && !isSendingOtp) {
       handleNext();
     }
-  },[hasOtp, isSendingOtp]);
+  }, [hasOtp, isSendingOtp]);
 
   const handleBack = () => {
     Animated.timing(animation, {
@@ -139,7 +139,7 @@ const TwoStepFormAnimated = () => {
             <Text style={styles.buttonText}>Iniciar Sesión</Text>
           </Pressable>
           {isVerifyingOtp && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
-          
+
         </View>
       </Animated.View>
     </View>

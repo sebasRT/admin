@@ -1,13 +1,13 @@
 import { useAuth } from "@/auth/AuthProvider";
+import DelivererForm from "@/components/DelivererForm";
 import { useDelivererStore } from "@/store/delivererStore";
 import { Button } from "@react-navigation/elements";
-import React, { useEffect } from 'react';
-import { ActivityIndicator, Alert, FlatList, Image, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Image, Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
 type ItemProps = {
     name: string;
-    phoneNumber: string;
+    phoneNumber: number;
     onEdit?: () => void;
     onDelete?: () => void;
     onQRCode?: () => void;
@@ -24,25 +24,25 @@ const Item = ({ name, phoneNumber, onEdit, onDelete, onQRCode }: ItemProps) => (
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.phoneNumber}>{phoneNumber}</Text>
         </View>
-        
+
         <View style={styles.actionsContainer}>
             <View style={styles.qrContainer}>
                 <Image
                     style={styles.qrImage}
                     source={require('@/assets/images/qr.png')}
-                    // onTouchEnd={onQRCode}
+                // onTouchEnd={onQRCode}
                 />
             </View>
             <View style={styles.changeContainer}>
                 <Image
                     style={styles.editImage}
                     source={require('@/assets/images/edit.png')}
-                    // onTouchEnd={onEdit}
+                // onTouchEnd={onEdit}
                 />
                 <Image
                     style={styles.deleteImage}
                     source={require('@/assets/images/trash.png')}
-                    // onTouchEnd={onDelete}
+                // onTouchEnd={onDelete}
                 />
             </View>
         </View>
@@ -50,16 +50,24 @@ const Item = ({ name, phoneNumber, onEdit, onDelete, onQRCode }: ItemProps) => (
 );
 
 export default function Index() {
+
+    const [isModalVisible, setModalVisible] = useState(false);
     const { logOut } = useAuth((state) => state);
-    
+
+
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    }
+
+
     // Use the deliverer store
-    const { 
-        deliverers, 
-        isLoading, 
-        error, 
-        fetchDeliverers, 
+    const {
+        deliverers,
+        isLoading,
+        error,
+        fetchDeliverers,
         deleteDeliverer,
-        clearError 
+        clearError
     } = useDelivererStore();
 
     useEffect(() => {
@@ -156,8 +164,8 @@ export default function Index() {
                     data={deliverers}
                     keyExtractor={(item) => item.name}
                     renderItem={({ item }) => (
-                        <Item 
-                            name={item.name} 
+                        <Item
+                            name={item.name}
                             phoneNumber={item.phone}
                             onEdit={() => handleEdit(item.name)}
                             onDelete={() => handleDelete(item.name, item.name)}
@@ -167,9 +175,17 @@ export default function Index() {
                     refreshing={isLoading}
                     onRefresh={fetchDeliverers}
                 />
-                <Button onPress={logOut}>
-                    Log out
-                </Button>
+                <Pressable style={styles.button} onPress={toggleModal}>
+                    <Text style={styles.buttonText}>Crear Domiciliario</Text>
+                </Pressable>
+                
+                <DelivererForm
+                    visible={isModalVisible}
+                    onClose={() => {
+                        setModalVisible(false);
+                        fetchDeliverers(); // Refresh the list after adding
+                    }}
+                />
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -250,4 +266,20 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
     },
+    button: {
+        backgroundColor: "#0067F6",
+        padding: 8,
+        borderRadius: 5,
+        alignItems: "center",
+        alignSelf: 'center',
+        width: '60%',
+        marginBottom: 40,
+        
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+
 });
