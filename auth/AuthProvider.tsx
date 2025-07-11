@@ -26,7 +26,7 @@ type AuthState = {
   isLoggedIn: boolean;
   isReady: boolean;
   isLoading: boolean;
-  logIn: (email: string, otp: string) => Promise<void>;
+  logIn: (email: string, otp: number) => Promise<void>;
   sendOtp: (email: string) => Promise<void>;
   check: () => void;
   logOut: () => void;
@@ -57,11 +57,12 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           console.error("Error fetching OTP:", error);
         }
       },
-      logIn: async (email: string, otp: string) => {
+      logIn: async (email: string, otp: number) => {
         set({ isLoading: true });
         try {
           const response = await verifyOtp(email, otp);
-          const token = response.data.token;
+          console.log("OTP verification response:", response);
+          const token = response.data;
           const user = jwtDecode<DecodedToken>(token);
           await login(token);
           set({ token, user, isLoggedIn: true, isReady: true });

@@ -46,7 +46,6 @@ const TwoStepFormAnimated = () => {
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
-  console.log("hasOtp", hasOtp);
 
 
   const handleNext = () => {
@@ -90,7 +89,7 @@ const TwoStepFormAnimated = () => {
   const handleLogin = async () => {
     setIsVerifyingOtp(true);
     try {
-      const response = await verifyOtp(email, otp);
+      const response = await verifyOtp(email, Number(otp));
       console.log("Login response:", response);
       console.log("User data:", user);
       console.log("User data:", user?.role);

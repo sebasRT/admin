@@ -1,9 +1,8 @@
-import axios from 'axios';
-import { useDelivererStore } from '@/store/delivererStore';
 import { Deliverer } from '@/store/delivererStore';
+import axios from 'axios';
 
 
-const API_BASE_URL = "https://nestjs-multitenant-backend-ccrf.onrender.com/"
+const API_BASE_URL = "https://midomi.app/api/admin"
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -14,7 +13,7 @@ export const api = axios.create({
 
 export const getDeliverers = async () => {
     try {
-        const response = await api.get('/admin/sendero_verde');
+        const response = await api.get('/domers');
         return response.data;
     } catch (error) {
         console.error("Error fetching deliverers:", error);
@@ -24,7 +23,7 @@ export const getDeliverers = async () => {
 
 export const createDeliverer = async (deliverer: Deliverer) => {
     try {
-        const response = await api.post('/admin', deliverer);
+        const response = await api.post('/domers', deliverer);
         return response.data;
     } catch (error) {
         console.error("Error creating deliverer:", error);

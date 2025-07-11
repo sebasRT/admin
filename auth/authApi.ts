@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = "https://nestjs-multitenant-backend-ccrf.onrender.com/"
+const API_BASE_URL = "https://midomi.app/api/admin"
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -11,11 +11,11 @@ const api = axios.create({
 
 export const generateOtp = async (email: string) => {
 
-    return api.post('/auth/generate-otp', { email: email })
+    return api.post('/auth', { email: email })
 
 };
 
-export const verifyOtp = async (email: string, otp: string) => {
+export const verifyOtp = async (email: string, otp: number) => {
     
-    return api.post('/auth/login', { email: email, otp: otp });
+    return api.post('/auth', { email: email, otp: otp });
 }

@@ -5,7 +5,6 @@ export type Deliverer = {
     email: string;
     name: string;
     phone: number;
-    db: string; 
 }
 
 type DelivererState = {
@@ -27,7 +26,8 @@ export const useDelivererStore = create<DelivererState>((set,get)=>({
     fetchDeliverers: async () => {
         set({isLoading: true, error: null});
         try {
-            const deliverers = await getDeliverers();
+            const response = await getDeliverers();
+            const deliverers = response.domers
             set({deliverers, isLoading: false});
         } catch (error) {
             console.error("Error fetching deliverers:", error);
