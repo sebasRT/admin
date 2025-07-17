@@ -1,7 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 
-export async function check(): Promise<string | null> {
-  return await SecureStore.getItemAsync("token"); // Retorna el token o null
+export function check(){
+  return SecureStore.getItem("token"); // Retorna el token o null
 }
 
 export async function login(token: string): Promise<void> {

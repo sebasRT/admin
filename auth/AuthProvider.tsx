@@ -1,4 +1,4 @@
-import { api } from "@/app/api/delivererApi";
+import { api } from "@/lib/api/domers";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -74,8 +74,8 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         }
       },
 
-      check: async () => {
-        const token = await check(); // Obtiene el token
+      check: () => {
+        const token = check(); // Obtiene el token
         const user = token ? jwtDecode<DecodedToken>(token) : null;
         const isLoggedIn = !!token;
         set({ token, user, isLoggedIn, isReady: true });
@@ -86,7 +86,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         set({ token: null, isLoggedIn: false });
         router.replace("/login");
       },
-
 
     }))
   );
