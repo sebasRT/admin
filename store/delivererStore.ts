@@ -1,4 +1,4 @@
-import { createDeliverer, getDeliverers } from "@/app/api/delivererApi";
+import { createDeliverer, getDeliverers } from "@/lib/api/delivererApi";
 import { create } from "zustand";
 
 export type Deliverer = {

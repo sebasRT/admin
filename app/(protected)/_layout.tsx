@@ -8,7 +8,7 @@ import Toast from "react-native-toast-message";
 const ProtectedLayout = () => {
   const insets = useSafeAreaInsets()
   const { isConnected } = useNetworkState();
-  const {isLoggedIn, isReady} = useAuth((state) => state);
+  const { isLoggedIn, isReady } = useAuth((state) => state);
 
   const showToast = () => {
     Toast.show({
@@ -26,6 +26,9 @@ const ProtectedLayout = () => {
     }
   }, [isConnected]);
 
+  if (!isReady) {
+    return null;
+  }
 
   if (!isLoggedIn) {
     return <Redirect href={"/login"} />;
