@@ -73,8 +73,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           set({ isLoading: false });
         }
       },
-
-
       check: async () => {
         try {
           const token = await check(); // Obtiene el token
@@ -88,19 +86,12 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           console.error("Error checking token:", error);
           set({ token: null, user: null, isLoggedIn: false, isReady: true });
         }
-      check: () => {
-        const token = check(); // Obtiene el token
-        const user = token ? jwtDecode<DecodedToken>(token) : null;
-        const isLoggedIn = !!token;
-        set({ token, user, isLoggedIn, isReady: true });
       },
-
       logOut: async () => {
         await logout(); // Elimina el token
-        set({ token: null, isLoggedIn: false });
+        set({ token: null, user: null, isLoggedIn: false, isReady: true, hasOtp: false, isLoading: false });
         router.replace("/login");
       },
-
     }))
   );
 
