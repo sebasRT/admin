@@ -1,4 +1,4 @@
-import { api } from "@/lib/api/delivererApi;
+import { api } from "@/lib/api/domers";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -73,7 +73,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           set({ isLoading: false });
         }
       },
-
       check: async () => {
         try {
           const token = await check(); // Obtiene el token
@@ -88,13 +87,11 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           set({ token: null, user: null, isLoggedIn: false, isReady: true });
         }
       },
-
       logOut: async () => {
         await logout(); // Elimina el token
-        set({ token: null, isLoggedIn: false });
+        set({ token: null, user: null, isLoggedIn: false, isReady: true, hasOtp: false, isLoading: false });
         router.replace("/login");
       },
-
     }))
   );
 
