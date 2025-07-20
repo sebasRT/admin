@@ -1,24 +1,28 @@
+import { useAuth } from "@/auth/AuthProvider";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Image } from "expo-image";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
-  Button,
   Dimensions,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { OtpInput } from "react-native-otp-entry";
 
 const Login = () => {
+
 
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
-          source={require("@/assets/images/partial-react-logo.png")}
+          source={require("@/assets/images/miDomi.png")}
           style={styles.reactLogo}
         />
       }
@@ -32,6 +36,17 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const TwoStepFormAnimated = () => {
   const animation = useRef(new Animated.Value(0)).current; // 0 for step 1, -SCREEN_WIDTH for step 2
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const sendOtp = useAuth((state) => state.sendOtp);
+  const hasOtp = useAuth((state) => state.hasOtp);
+  const verifyOtp = useAuth((state) => state.logIn);
+  const isLoading = useAuth((state) => state.isLoading);
+  const user = useAuth((state) => state.user);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
+
 
   const handleNext = () => {
     Animated.timing(animation, {
@@ -41,6 +56,12 @@ const TwoStepFormAnimated = () => {
     }).start();
   };
 
+  useEffect(() => {
+    if (hasOtp && !isSendingOtp) {
+      handleNext();
+    }
+  }, [hasOtp, isSendingOtp]);
+
   const handleBack = () => {
     Animated.timing(animation, {
       toValue: 0,
@@ -48,9 +69,36 @@ const TwoStepFormAnimated = () => {
       useNativeDriver: true,
     }).start();
   };
-  
-  const handleSubmit = () => {
-    console.log("Form submitted:");
+
+  const handleSubmit = async () => {
+    setIsSendingOtp(true);
+    try {
+      const response = await sendOtp(email);
+      console.log(response);
+      handleNext();
+    }
+    catch (error) {
+      console.error("Error fetching OTP:", error);
+    }
+    finally {
+      setIsSendingOtp(false);
+    }
+
+  };
+
+  const handleLogin = async () => {
+    setIsVerifyingOtp(true);
+    try {
+      const response = await verifyOtp(email, Number(otp));
+      console.log("Login response:", response);
+      console.log("User data:", user);
+      console.log("User data:", user?.role);
+
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setIsVerifyingOtp(false);
+    }
   };
 
   return (
@@ -60,21 +108,37 @@ const TwoStepFormAnimated = () => {
       >
         {/* Step 1 */}
         <View style={styles.step}>
-          <Text style={styles.label}>Teléfono</Text>
-          <Text>Teléfono ingresado al registrarte</Text>
-          <TextInput style={styles.input} />
-          <Button title="Next" onPress={handleNext} />
+          <Text style={styles.title}>¡Bienvenido a MiDomi!</Text>
+          <Text style={styles.label}>Correo</Text>
+          <TextInput editable={!isSendingOtp} style={styles.input} placeholder="Ingrese el correo registrado" onChangeText={setEmail} />
+          <Pressable style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+            <Text style={styles.buttonText}>
+
+              {isSendingOtp ? "Enviando..." : "Siguiente"}
+            </Text>
+          </Pressable>
+          {isSendingOtp && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
         </View>
 
         {/* Step 2 */}
         <View style={styles.step}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
+          <Text style={styles.title}>Verificación de correo</Text>
+          <Text style={[styles.label, { marginBottom: 20 }]}>Ingresa el código de inicio de sesión que ha sido enviado a tú correo</Text>
+          <OtpInput
+            numberOfDigits={6}
+            onTextChange={setOtp}
+            focusColor={"#0067F6"}
+            theme={{
+              pinCodeContainerStyle: styles.pinStyle,
+              containerStyle: styles.otpInputContainer,
+            }}
+
           />
-          <Button title="Back" onPress={handleBack} />
-          <Button title="Submit" onPress={handleSubmit} />
+          <Pressable style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Iniciar Sesión</Text>
+          </Pressable>
+          {isVerifyingOtp && <ActivityIndicator size="large" color="#0067F6" style={{ marginTop: 10 }} />}
+
         </View>
       </Animated.View>
     </View>
@@ -93,26 +157,53 @@ const styles = StyleSheet.create({
   },
   step: {
     width: SCREEN_WIDTH,
-    padding: 20,
+    paddingInline: 30,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: "bold",
+    marginBottom: 40,
+    textAlign: "center",
+    color: "#0067F6",
   },
   label: {
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 6,
+    fontWeight: "bold",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    marginBottom: 15,
     padding: 10,
     borderRadius: 5,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
+  button: {
+    backgroundColor: "#0067F6",
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  pinStyle: {
+    borderWidth: 1.5,
+    borderColor: "#ccc",
+    padding: 10,
+
+  },
+  otpInputContainer: {
+    paddingInline: 20,
+    marginBottom: 20,
+  },
+
 });
 
 export default Login;
