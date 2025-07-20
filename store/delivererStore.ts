@@ -5,6 +5,7 @@ export type Deliverer = {
     email: string;
     name: string;
     phone: number;
+    id: string;
 }
 
 type DelivererState = {

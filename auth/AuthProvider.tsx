@@ -1,4 +1,4 @@
-import { api } from "@/lib/api/delivererApi";
+import { api } from "@/lib/api/delivererApi;
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -94,7 +94,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         set({ token: null, isLoggedIn: false });
         router.replace("/login");
       },
-
 
     }))
   );
