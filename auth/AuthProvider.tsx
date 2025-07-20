@@ -1,4 +1,4 @@
-import { api } from "@/lib/api/domers";
+import { api } from "@/lib/api/delivererApi;
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -74,11 +74,19 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         }
       },
 
-      check: () => {
-        const token = check(); // Obtiene el token
-        const user = token ? jwtDecode<DecodedToken>(token) : null;
-        const isLoggedIn = !!token;
-        set({ token, user, isLoggedIn, isReady: true });
+      check: async () => {
+        try {
+          const token = await check(); // Obtiene el token
+          if (token) {
+            const user = jwtDecode<DecodedToken>(token);
+            set({ token, user, isLoggedIn: true, isReady: true });
+          } else {
+            set({ token: null, user: null, isLoggedIn: false, isReady: true });
+          }
+        } catch (error) {
+          console.error("Error checking token:", error);
+          set({ token: null, user: null, isLoggedIn: false, isReady: true });
+        }
       },
 
       logOut: async () => {
