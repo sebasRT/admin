@@ -74,6 +74,20 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         }
       },
 
+
+      check: async () => {
+        try {
+          const token = await check(); // Obtiene el token
+          if (token) {
+            const user = jwtDecode<DecodedToken>(token);
+            set({ token, user, isLoggedIn: true, isReady: true });
+          } else {
+            set({ token: null, user: null, isLoggedIn: false, isReady: true });
+          }
+        } catch (error) {
+          console.error("Error checking token:", error);
+          set({ token: null, user: null, isLoggedIn: false, isReady: true });
+        }
       check: () => {
         const token = check(); // Obtiene el token
         const user = token ? jwtDecode<DecodedToken>(token) : null;
