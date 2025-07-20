@@ -10,12 +10,9 @@ const api = axios.create({
 })
 
 export const generateOtp = async (email: string) => {
-
     return api.post('/auth', { email: email })
-
 };
 
 export const verifyOtp = async (email: string, otp: number) => {
-    
     return api.post('/auth', { email: email, otp: otp });
 }

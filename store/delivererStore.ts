@@ -1,10 +1,11 @@
-import { createDeliverer, getDeliverers } from "@/app/api/delivererApi";
+import { createDeliverer, getDeliverers } from "@/lib/api/domers";
 import { create } from "zustand";
 
 export type Deliverer = {
     email: string;
     name: string;
     phone: number;
+    id: string;
 }
 
 type DelivererState = {
