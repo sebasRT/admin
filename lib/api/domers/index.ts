@@ -33,6 +33,26 @@ export const createDeliverer = async (deliverer: Deliverer) => {
     }
 }
 
+export const deleteDeliverer = async (id: string) => {
+    try {
+        const response = await api.delete(`/domers/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting deliverer:", error);
+        throw error;
+    }
+}
+
+export const updateDeliverer = async (id: string, value: Partial<Deliverer>) => {
+    try {
+        const response = await api.patch(`/domers/${id}`, value);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating deliverer:", error);
+        throw error;
+    }
+}
+
 export const getDelivererJWT = async (id: string) => {
     try {
         const response = await api.get(`/domers/${id}/jwt`);
