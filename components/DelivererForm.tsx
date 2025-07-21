@@ -1,4 +1,3 @@
-import { useAuth } from '@/auth/AuthProvider';
 import { useDelivererStore } from '@/store/delivererStore';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -9,22 +8,20 @@ interface DelivererFormProps {
 }
 
 const DelivererForm = ({ visible, onClose }: DelivererFormProps) => {
-
+    const [id, setId] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const user = useAuth((state) => state.user);
-    const db_name = user?.db_name ?? '';
-
     const addDeliverer = useDelivererStore((state) => state.addDeliverer);
 
     const handleCreateDeliverer = () => {
         if (name && email && phoneNumber) {
             const newDeliverer = {
-                name,
+                id,
                 email,
+                name,
                 phone: Number(phoneNumber),
-                db: db_name,
+                status: 'active',
             };
             addDeliverer(newDeliverer);
             onClose(); // Close the modal after adding
@@ -44,6 +41,10 @@ const DelivererForm = ({ visible, onClose }: DelivererFormProps) => {
                 {/* Form fields go here */}
                 <Text style={styles.label}>Nombre Completo</Text>
                 <TextInput style={styles.input} placeholder='Ingrese el nombre completo' onChangeText={setName}>
+                </TextInput>
+                {/* Form fields go here */}
+                <Text style={styles.label}>Cédula</Text>
+                <TextInput style={styles.input} placeholder='Ingrese la cédula' onChangeText={setId}>
                 </TextInput>
                 <Text style={styles.label}>Correo</Text>
                 <TextInput style={styles.input} placeholder='Ingrese el correo electrónico' onChangeText={setEmail}>

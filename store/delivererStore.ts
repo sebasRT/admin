@@ -1,11 +1,12 @@
-import { createDeliverer, getDeliverers } from "@/lib/api/domers";
+import { createDeliverer, deleteDeliverer, getDeliverers } from "@/lib/api/domers";
 import { create } from "zustand";
 
 export type Deliverer = {
+    id: string;
     email: string;
     name: string;
     phone: number;
-    id: string;
+    status: string;
 }
 
 type DelivererState = {
@@ -15,7 +16,7 @@ type DelivererState = {
     fetchDeliverers: () => Promise<void>;
     addDeliverer: (deliverer: Deliverer) => void;
     updateDeliverer: (name: string, updatedDeliverer: Partial<Deliverer>) => void;
-    deleteDeliverer: (email: string) => void;
+    deleteDeliverer: (id: string) => void;
     clearError: () => void;
 };
 
@@ -40,11 +41,20 @@ export const useDelivererStore = create<DelivererState>((set,get)=>({
         set({isLoading: true, error: null});
         try {
             const newDeliverer = await createDeliverer(deliverer);
+            
+            // Esperar un poco antes de actualizar el estado
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             set((state) => ({
                 deliverers: [...state.deliverers, newDeliverer],
                 isLoading: false,
             }));
             console.log("Deliverer created successfully:", newDeliverer);
+            
+            // Refrescar la lista desde el servidor para asegurar consistencia
+            const { fetchDeliverers } = get();
+            await fetchDeliverers();
+            
         } catch (error) {
             console.error("Error creating deliverer:", error);
             set({isLoading: false, error: "Failed to create deliverer"});
@@ -57,10 +67,20 @@ export const useDelivererStore = create<DelivererState>((set,get)=>({
             ),
         }));
     },
-    deleteDeliverer: (email) => {
-        set((state) => ({
-            deliverers: state.deliverers.filter((deliverer) => deliverer.email !== email),
-        }));
+    deleteDeliverer: (id: string) => {
+        set({isLoading: true, error: null});
+        try {
+            deleteDeliverer(id).then(() => {
+                set((state) => ({
+                    deliverers: state.deliverers.filter((deliverer) => deliverer.id !== id),
+                    isLoading: false,
+                }));
+                console.log("Deliverer deleted successfully");
+            });
+        } catch (error) {
+            console.error("Error deleting deliverer:", error);
+            set({isLoading: false, error: "Failed to delete deliverer"});
+        }
     },
     clearError: () => {
         set({error: null});

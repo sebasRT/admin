@@ -4,13 +4,13 @@ import { Deliverer, useDelivererStore } from "@/store/delivererStore";
 import { Button } from "@react-navigation/elements";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Image,
-    Pressable,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  Pressable,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
@@ -171,13 +171,13 @@ export default function Index() {
       <SafeAreaView style={styles.container}>
         <FlatList
           data={deliverers}
-          keyExtractor={(item) => item.name}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <Item
               deliverer={item}
-              onEdit={() => handleEdit(item.name)}
-              onDelete={() => handleDelete(item.name, item.name)}
-              onQRCode={() => handleQRCode(item.name)}
+              onEdit={() => handleEdit(item.id)}
+              onDelete={() => handleDelete(item.id, item.name)}
+              onQRCode={() => handleQRCode(item.id)}
             />
           )}
           refreshing={isLoading}
@@ -191,7 +191,6 @@ export default function Index() {
           visible={isModalVisible}
           onClose={() => {
             setModalVisible(false);
-            fetchDeliverers(); // Refresh the list after adding
           }}
         />
       </SafeAreaView>
