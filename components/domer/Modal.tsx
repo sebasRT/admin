@@ -1,3 +1,4 @@
+import EditDelivererModal from "@/components/EditDelivererModal";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { getDelivererJWT } from "@/lib/api/domers";
 import { Deliverer, useDelivererStore } from "@/store/delivererStore";
@@ -18,6 +19,11 @@ const DomerModal = ({
 }) => {
   const backgroundColor = useThemeColor({}, "background");
   const [token, setToken] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
   useEffect(() => {
     if (!isOpen) return; // Solo ejecutar si el modal está abierto
@@ -79,7 +85,7 @@ const DomerModal = ({
 
         <ThemedText>Name: {domer.name}</ThemedText>
         <ThemedView style={styles.actionsContainer}>
-          <Pressable style={styles.editButton} onPress={close}>
+          <Pressable style={styles.editButton} onPress={toggleModal}>
             <ThemedText style={styles.editButtonText}>Editar</ThemedText>
           </Pressable>
           <Pressable style={styles.deleteButton} onPress={handleDelete}>
@@ -87,6 +93,12 @@ const DomerModal = ({
           </Pressable>
         </ThemedView>
       </ThemedView>
+
+      <EditDelivererModal
+        visible={isModalVisible}
+        onClose={toggleModal}
+        deliverer={domer}
+      />
     </Modal>
   );
 };

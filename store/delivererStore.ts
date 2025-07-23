@@ -1,4 +1,4 @@
-import { createDeliverer, deleteDeliverer, getDeliverers } from "@/lib/api/domers";
+import { createDeliverer, deleteDeliverer, getDeliverers, updateDeliverer } from "@/lib/api/domers";
 import { create } from "zustand";
 
 export type Deliverer = {
@@ -60,12 +60,23 @@ export const useDelivererStore = create<DelivererState>((set,get)=>({
             set({isLoading: false, error: "Failed to create deliverer"});
         }
     },
-    updateDeliverer: (name, updatedDeliverer) => {
-        set((state) => ({
-            deliverers: state.deliverers.map((deliverer) =>
-                deliverer.name === name ? {...deliverer, ...updatedDeliverer} : deliverer
-            ),
-        }));
+    updateDeliverer: (id, updatedDeliverer) => {
+        set({isLoading: true, error: null});
+        try {
+            updateDeliverer(id, updatedDeliverer).then(() => {
+                set((state) => ({
+                    deliverers: state.deliverers.map((deliverer) =>
+                        deliverer.id === id ? { ...deliverer, ...updatedDeliverer } : deliverer
+                    ),
+                    isLoading: false,
+                }));
+                console.log("Deliverer updated successfully");
+            });
+        } catch (error) {
+            console.error("Error updating deliverer:", error);
+            set({isLoading: false, error: "Failed to update deliverer"});
+        }
+
     },
     deleteDeliverer: (id: string) => {
         set({isLoading: true, error: null});
