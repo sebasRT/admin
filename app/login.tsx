@@ -1,7 +1,8 @@
 import { useAuth } from "@/auth/AuthProvider";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Image } from "expo-image";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import {
   ActivityIndicator,
   Animated,
@@ -38,7 +39,7 @@ const TwoStepFormAnimated = () => {
   const [email, setEmail] = useState(
     process.env.NODE_ENV === "development" ? "dev@midomi.app" : ""
   );
-  
+
   const [otp, setOtp] = useState("");
 
   const {
@@ -76,8 +77,7 @@ const TwoStepFormAnimated = () => {
   const handleSubmit = async () => {
     setIsSendingOtp(true);
     try {
-      const response = await sendOtp(email);
-      console.log(response);
+      await sendOtp(email);
       handleNext();
     } catch (error) {
       console.error("Error fetching OTP:", error);
@@ -103,7 +103,6 @@ const TwoStepFormAnimated = () => {
       <Animated.View
         style={[styles.container, { transform: [{ translateX: animation }] }]}
       >
-        {/* Step 1 */}
         <View style={styles.step}>
           <Text style={styles.title}>¡Bienvenido a MiDomi!</Text>
           <Text style={styles.label}>Correo</Text>
@@ -130,8 +129,6 @@ const TwoStepFormAnimated = () => {
             />
           )}
         </View>
-
-        {/* Step 2 */}
         <View style={styles.step}>
           <Text style={styles.title}>Verificación de correo</Text>
           <Text style={[styles.label, { marginBottom: 20 }]}>

@@ -31,6 +31,7 @@ export const verifyOtp = async (email: string, otp: number) => {
 
     try {
         const response = await api.post('/auth', { email, otp });
+        console.log(response.status);
 
         return { success: true, token: response.data };
     } catch (error: any) {

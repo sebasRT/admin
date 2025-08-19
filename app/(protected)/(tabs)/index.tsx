@@ -1,16 +1,17 @@
 import { useAuth } from "@/auth/AuthProvider";
 import DelivererForm from "@/components/DelivererForm";
 import { Deliverer, useDelivererStore } from "@/store/delivererStore";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Button } from "@react-navigation/elements";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Image,
-    Pressable,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Pressable,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,46 +27,31 @@ const Item = ({ deliverer, onEdit, onDelete, onQRCode }: ItemProps) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <Pressable onPress={() => setModalOpen(true)}>
+    <View style={styles.item}>
       <DomerModal
         domer={deliverer}
         isOpen={modalOpen}
         close={() => setModalOpen(false)}
       />
-      <View style={styles.item}>
-        <Image
-          style={styles.delivererImage}
-          source={require("@/assets/images/deliverer.png")}
-        />
+      <FontAwesome
+        name="user"
+        style={styles.delivererImage}
+        size={50}
+        color="black"
+      />
 
-        <View style={styles.delivererDetails}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.phoneNumber}>{phone}</Text>
-        </View>
-
-        <View style={styles.actionsContainer}>
-          <View style={styles.qrContainer}>
-            <Image
-              style={styles.qrImage}
-              source={require("@/assets/images/qr.png")}
-              // onTouchEnd={onQRCode}
-            />
-          </View>
-          <View style={styles.changeContainer}>
-            <Image
-              style={styles.editImage}
-              source={require("@/assets/images/edit.png")}
-              // onTouchEnd={onEdit}
-            />
-            <Image
-              style={styles.deleteImage}
-              source={require("@/assets/images/trash.png")}
-              // onTouchEnd={onDelete}
-            />
-          </View>
-        </View>
+      <View style={styles.delivererDetails}>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.phoneNumber}>{phone}</Text>
       </View>
-    </Pressable>
+
+      <Pressable
+        onPress={() => setModalOpen(true)}
+        style={styles.actionsContainer}
+      >
+        <Ionicons name="qr-code" size={50} color="black" />
+      </Pressable>
+    </View>
   );
 };
 
@@ -224,7 +210,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   name: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
   },
   delivererImage: {
