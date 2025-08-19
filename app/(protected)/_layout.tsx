@@ -2,11 +2,9 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useNetworkState } from "expo-network";
 import { Redirect, Slot } from "expo-router";
 import { useEffect } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
 const ProtectedLayout = () => {
-  const insets = useSafeAreaInsets()
   const { isConnected } = useNetworkState();
   const { isLoggedIn, isReady } = useAuth((state) => state);
 

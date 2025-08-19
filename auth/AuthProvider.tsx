@@ -17,7 +17,7 @@ type DecodedToken = {
   db_name: string;
   iat: number;
   exp: number;
-}
+};
 
 type AuthState = {
   token: string | null;
@@ -46,47 +46,53 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       isLoading: false,
       user: null,
       sendOtp: async (email: string) => {
-        set(() => ({ isLoading: true }));
-        try {
-          const response = await generateOtp(email);
-          set(() => ({ hasOtp: true, isLoading: false }));
+        set({ isLoading: true });
 
-          return response.data;
+        if (process.env.NODE_ENV === "development") {
+          set({ hasOtp: true, isLoading: false });
+          return;
         }
-        catch (error) {
-          console.error("Error fetching OTP:", error);
+
+        const { succes, error } = await generateOtp(email);
+        if (!succes) {
+          set({ isLoading: false });
+          throw new Error(error);
         }
+
+        set({ hasOtp: succes, isLoading: false });
       },
       logIn: async (email: string, otp: number) => {
         set({ isLoading: true });
-        try {
-          const response = await verifyOtp(email, otp);
-          console.log("OTP verification response:", response);
-          const token = response.data;
-          const user = jwtDecode<DecodedToken>(token);
-          await login(token);
-          set({ token, user, isLoggedIn: true, isReady: true });
-          router.replace("/(protected)/(tabs)");
-        } catch (error) {
-          console.error("OTP verification failed:", error);
-        } finally {
+        const { success, token, error } = await verifyOtp(email, otp);
+
+        if (!success || !token) {
           set({ isLoading: false });
+          throw new Error(error);
         }
+
+        await login(token);
+        const user = jwtDecode<DecodedToken>(token);
+        router.replace("/(protected)/(tabs)");
+        
+        set({
+          token,
+          user,
+          isLoggedIn: success,
+          isReady: true,
+          isLoading: false,
+        });
       },
       check: async () => {
-        try {
-          const token = await check(); // Obtiene el token
-          if (token) {
-            const user = jwtDecode<DecodedToken>(token);
-            set({ token, user, isLoggedIn: true, isReady: true });
-          } else {
-            set({ token: null, user: null, isLoggedIn: false, isReady: true });
-          }
-        } catch (error) {
-          console.error("Error checking token:", error);
-          set({ token: null, user: null, isLoggedIn: false, isReady: true });
+        const token = check(); // Obtiene el token
+
+        if (!token) {
+          set({ isReady: true });
+          return;
         }
+        const user = jwtDecode<DecodedToken>(token);
+        set({ token, user, isLoggedIn: !!token, isReady: true });
       },
+
       logOut: async () => {
         await logout(); // Elimina el token
         set({ token: null, user: null, isLoggedIn: false, isReady: true, hasOtp: false, isLoading: false });
@@ -97,13 +103,9 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     store.getState().check();
-  }, [store]);
-
-  useEffect(() => {
     const unsubscribe = store.subscribe((state) => {
       const token = state.token;
 
-      // Registrar interceptor y guardar su ID
       const interceptorId = api.interceptors.request.use((config) => {
         config.headers = config.headers || {};
         if (token) {
@@ -112,7 +114,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         return config;
       });
 
-      // Función de limpieza para quitar el interceptor
       return () => {
         api.interceptors.request.eject(interceptorId);
       };
