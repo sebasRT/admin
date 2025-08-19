@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 
-export function check(){
+export function check() {
   return SecureStore.getItem("token"); // Retorna el token o null
 }
 
