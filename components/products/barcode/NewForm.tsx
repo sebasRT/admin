@@ -1,3 +1,4 @@
+import { ThemedText } from "@/components/ThemedText";
 import { BaseBarcodeProduct } from "@/model/products/barcode";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -10,7 +11,14 @@ const NewFromBase = ({
 }) => {
   const form = useForm({ defaultValues });
 
-  return <View></View>;
+  return (
+    <View>
+      <ThemedText>
+        producto base: 
+        
+        {defaultValues.barcode}</ThemedText>
+    </View>
+  );
 };
 
 export default NewFromBase;
