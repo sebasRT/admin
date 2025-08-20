@@ -131,7 +131,7 @@ type Subcategory = typeof subcategories[Category][number];
 
 const baseProductSchema = z.object({
     _id: z.string().optional(),
-    barcode: z.string(),
+    barcode: z.string().optional(),
     name: z.string(),
     measure: z.string(),
     brand: z.string(),
@@ -143,7 +143,7 @@ const baseProductSchema = z.object({
 });
 
 const tenantProductSchema = z.object({
-    type: z.literal("barcode"),
+    type: z.literal("barcode").optional(),
     barcode: z.string(),
     show: z.boolean().optional(),
     cost: z.number().optional(),

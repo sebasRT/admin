@@ -13,7 +13,7 @@ import { Pressable, StyleSheet, TextInput, View } from "react-native";
 
 export default function Products() {
   return (
-    <ThemedView style={{ flex: 1 }}>
+    <ThemedView style={{ flex: 1, gap: 20 }}>
       <Input />
       <ProductsPageView />
     </ThemedView>

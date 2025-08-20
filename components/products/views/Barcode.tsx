@@ -4,7 +4,7 @@ import { getProductByBarcode } from "@/lib/api/products";
 import { useQuery } from "@tanstack/react-query";
 import BarcodeCard from "../barcode/Card";
 import NewBarcode from "../barcode/NewBarcode";
-import NewFromBase from "../barcode/NewForm";
+import NewFromBase from "../barcode/NewFromBase";
 
 const BarcodeProductView = () => {
   const { barcode } = useProductsPage();
