@@ -12,6 +12,8 @@ const api = axios.create({
 export async function generateOtp(email: string) {
     try {
         await api.post(`/auth`, { email });
+        console.log(email);
+
         return { succes: true };
     }
     catch (error: any) {
