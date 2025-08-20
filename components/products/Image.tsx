@@ -1,15 +1,24 @@
 import { cld } from "@/lib/cloudinary";
-import { Image } from "react-native";
+import { DimensionValue, Image } from "react-native";
 import { ThemedView } from "../ThemedView";
 
-const ProductImage = ({ img }: { img: string }) => {
+const ProductImage = ({
+  img,
+  width = "100%",
+}: {
+  img: string;
+  width: DimensionValue;
+}) => {
   const cldProductImage = cld.image(img).toURL();
+
+  if (!cldProductImage) {
+    return null; // Handle the case where the image URL is not available
+  }
 
   return (
     <ThemedView
       style={{
-        width: "100%",
-        flex: 1,
+        width,
         aspectRatio: 1,
       }}
     >

@@ -8,7 +8,7 @@ const BarcodeCard = ({ product }: { product: BarcodeProduct }) => {
 
   return (
     <View>
-      <ProductImage img={image} />
+      <ProductImage img={image} width={250} />
       <ThemedText>{name}</ThemedText>
       <ThemedText>{price}</ThemedText>
     </View>

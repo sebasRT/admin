@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 const categories = ["alimentos_basicos", "cuidado_e_higiene", "mecato", "licor", "aseo", "bebidas", "carnicos", "frutas_y_verduras", "mascotas", "otra"] as const;
@@ -158,17 +157,20 @@ const barcodeCartItemSchema = barcodeSchema.extend({
     quantity: z.number().min(1),
 })
 
+const newBarcodeSchema = baseProductSchema.pick({ name: true, barcode: true, brand: true, measure: true }).extend({ tenants: z.array(z.string()).optional(), price: z.union([z.string(), z.number()]), cost: z.number().positive().optional() });
+
 type CartItem = z.infer<typeof barcodeCartItemSchema>;
 type BaseBarcodeProduct = z.infer<typeof baseProductSchema>;
 type TenantBarcodeProduct = z.infer<typeof tenantProductSchema>;
 type BarcodeProduct = z.infer<typeof barcodeSchema>;
+type NewBarcodeProduct = z.infer<typeof newBarcodeSchema>;
 
 export {
     barcodeCartItemSchema, barcodeSchema, baseProductSchema, categories,
-    CATEGORIES,
-    stockStatus,
+    CATEGORIES, newBarcodeSchema, stockStatus,
     subcategories, tenantProductSchema, type Category, type Subcategory
 };
 export type {
-    BarcodeProduct, BaseBarcodeProduct, CartItem, TenantBarcodeProduct
+    BarcodeProduct, BaseBarcodeProduct, CartItem, NewBarcodeProduct, TenantBarcodeProduct
 };
+
